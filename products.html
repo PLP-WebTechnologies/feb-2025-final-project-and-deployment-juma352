@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Products - Online Beadwork Masters</title>
+</head>
+<body>
+    <header class="sticky-header">
+        <nav>
+            <div class="logo">
+                <h1>Beadwork Masters</h1>
+                <span class="tagline">Maasai Artisan Crafts</span>
+            </div>
+            <div class="nav-links">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html" class="active">Products</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="cart.html" class="cart-icon"><i class="fas fa-shopping-bag"></i> <span class="cart-count">0</span></a></li>
+                </ul>
+            </div>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="products" class="products-section">
+            <div class="container">
+<div class="section-header">
+    <h2>Our Products</h2>
+    <div class="search-filter">
+        <input type="text" id="search-input" placeholder="Search products..." />
+    </div>
+    <div class="sort-filter">
+        <select id="sort-by">
+            <option value="default">Sort by</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="popular">Most Popular</option>
+        </select>
+    </div>
+</div>
+
+                <div class="product-categories">
+                    <button class="category-btn active" data-category="all">All Collections</button>
+                    <button class="category-btn" data-category="beaded-crafts">Beaded Crafts</button>
+                    <button class="category-btn" data-category="necklace-kits">Necklace Kits</button>
+                    <button class="category-btn" data-category="themed-collections">Themed Collections</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="product-grid">
+            <!-- Product cards will be dynamically inserted here -->
+        </div>
+
+        <div class="pagination">
+            <button class="prev-btn">Previous<i class="fas fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">4</button>
+            <button class="page-btn">5</button>
+            <button class="page-btn">6</button>
+            <button class="next-btn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </main>
+    <script src="script.js"></script>
+    <script src="products-data.js"></script>
+    <script src="products-render.js"></script>
+</body>
+</html>

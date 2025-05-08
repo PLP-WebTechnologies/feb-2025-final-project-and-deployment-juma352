@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Shopping Cart - Online Beadwork Masters</title>
+    <style>
+        .cart-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        h2 {
+            margin-bottom: 1rem;
+            color: var(--color-text-dark);
+        }
+        table.cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        table.cart-table th,
+        table.cart-table td {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--color-border);
+            text-align: center;
+            vertical-align: middle;
+        }
+        table.cart-table th {
+            background-color: var(--color-background-light);
+            color: var(--color-text-dark);
+        }
+        .cart-product-image img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+        }
+        .quantity-input {
+            width: 60px;
+            padding: 0.3rem;
+            font-size: 1rem;
+            text-align: center;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+        }
+        .remove-btn {
+            background-color: transparent;
+            border: none;
+            color: var(--color-accent);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .remove-btn:hover {
+            color: var(--color-primary-dark);
+        }
+        .cart-summary {
+            text-align: right;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--color-text-dark);
+        }
+        .checkout-btn {
+            display: inline-block;
+            background-color: var(--color-primary);
+            color: var(--color-text-light);
+            padding: 0.8rem 2rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+        }
+        .checkout-btn:hover {
+            background-color: var(--color-primary-dark);
+        }
+        .empty-cart {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--color-text-muted);
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="sticky-header">
+        <nav>
+            <div class="logo">
+                <h1>Beadwork Masters</h1>
+                <span class="tagline">Maasai Artisan Crafts</span>
+            </div>
+            <div class="nav-links">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html">Products</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="cart.html" class="active cart-icon"><i class="fas fa-shopping-bag"></i> <span class="cart-count">0</span></a></li>
+                </ul>
+            </div>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <main class="cart-container">
+        <h2>Your Shopping Cart</h2>
+        <table class="cart-table" aria-label="Shopping Cart Items">
+            <thead>
+                <tr>
+                    <th scope="col">Product</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Subtotal</th>
+                    <th scope="col">Remove</th>
+                </tr>
+            </thead>
+            <tbody id="cart-items">
+                <!-- Cart items will be dynamically inserted here -->
+            </tbody>
+        </table>
+        <div class="cart-summary" aria-live="polite">
+            Total: $<span id="cart-total">0.00</span>
+        </div>
+        <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
+        <div class="empty-cart" id="empty-cart-message" style="display:none;">
+            Your cart is currently empty.
+        </div>
+    </main>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        const cartItemsContainer = document.getElementById('cart-items');
+        const cartTotalElement = document.getElementById('cart-total');
+        const emptyCartMessage = document.getElementById('empty-cart-message');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const cartCountElements = document.querySelectorAll('.cart-count');
+
+        function updateCartCount() {
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountElements.forEach(el => el.textContent = totalCount);
+        }
+
+        function renderCart() {
+            cartItemsContainer.innerHTML = '';
+            if (cart.length === 0) {
+                emptyCartMessage.style.display = 'block';
+                checkoutBtn.style.display = 'none';
+                cartTotalElement.textContent = '0.00';
+                return;
+            } else {
+                emptyCartMessage.style.display = 'none';
+                checkoutBtn.style.display = 'inline-block';
+            }
+
+            let total = 0;
+
+            if (!window.products) {
+                const script = document.createElement('script');
+                script.src = 'products-data.js';
+                script.onload = () => {
+                    renderCartItems();
+                };
+                document.body.appendChild(script);
+            } else {
+                renderCartItems();
+            }
+
+            function renderCartItems() {
+                cart.forEach(cartItem => {
+                    const product = products.find(p => p.id === cartItem.id);
+                    if (!product) return;
+
+                    const subtotal = product.price * cartItem.quantity;
+                    total += subtotal;
+
+                    const tr = document.createElement('tr');
+
+                    tr.innerHTML = `
+                        <td class="cart-product-image"><img src="${product.image}" alt="${product.name}"></td>
+                        <td>${product.name}</td>
+                        <td>$${product.price.toFixed(2)}</td>
+                        <td>
+                            <input type="number" min="1" class="quantity-input" value="${cartItem.quantity}" data-id="${product.id}" aria-label="Quantity for ${product.name}">
+                        </td>
+                        <td>$${subtotal.toFixed(2)}</td>
+                        <td>
+                            <button class="remove-btn" data-id="${product.id}" aria-label="Remove ${product.name} from cart">&times;</button>
+                        </td>
+                    `;
+
+                    cartItemsContainer.appendChild(tr);
+                });
+
+                cartTotalElement.textContent = total.toFixed(2);
+                updateCartCount();
+                attachEventListeners();
+            }
+        }
+
+        function attachEventListeners() {
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            quantityInputs.forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const id = parseInt(e.target.getAttribute('data-id'));
+                    let quantity = parseInt(e.target.value);
+                    if (isNaN(quantity) || quantity < 1) {
+                        quantity = 1;
+                        e.target.value = 1;
+                    }
+                    const itemIndex = cart.findIndex(item => item.id === id);
+                    if (itemIndex > -1) {
+                        cart[itemIndex].quantity = quantity;
+                        saveCart();
+                        renderCart();
+                    }
+                });
+            });
+
+            const removeButtons = document.querySelectorAll('.remove-btn');
+            removeButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const id = parseInt(e.target.getAttribute('data-id'));
+                    cart = cart.filter(item => item.id !== id);
+                    saveCart();
+                    renderCart();
+                });
+            });
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        checkoutBtn.addEventListener('click', () => {
+            if (cart.length === 0) {
+                alert('Your cart is empty.');
+                return;
+            }
+            // Redirect to checkout page
+            window.location.href = 'checkout.html';
+        });
+
+        updateCartCount();
+        renderCart();
+    </script>
+</body>
+</html>
